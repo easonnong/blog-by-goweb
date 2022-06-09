@@ -2,8 +2,10 @@ package main
 
 import (
 	"encoding/json"
+	"html/template"
 	"log"
 	"net/http"
+	"os"
 )
 
 type IndexData struct {
@@ -28,6 +30,18 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	w.Write(jsonBytes)
 }
 
+func Index2(w http.ResponseWriter, r *http.Request) {
+	var indexData IndexData
+	indexData.Title = "Title:title"
+	indexData.Desc = "Desc:desc"
+	t := template.New("index.html")
+	//获取当前路径
+	dir, _ := os.Getwd()
+	t, _ = t.ParseFiles(dir + "/template/index.html")
+	t.Execute(w, indexData)
+
+}
+
 func main() {
 	//开启服务
 	server := http.Server{
@@ -36,6 +50,7 @@ func main() {
 
 	//处理要写在监听端口前，否则报错
 	http.HandleFunc("/", Index)
+	http.HandleFunc("/index", Index2)
 
 	//监听端口
 	if err := server.ListenAndServe(); err != nil {
